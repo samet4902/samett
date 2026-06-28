@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Yaban: Kayıp Patika</title>
+    <style>
+        /* Modern, minimalist ve göz yormayan doğal renk paleti */
+        :root {
+            --bg-color: #1a2312;
+            --ui-bg: rgba(34, 49, 29, 0.85);
+            --ui-border: #4a5d3e;
+            --text-color: #e2e8dd;
+            --accent-color: #8da27a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+        }
+
+        /* Oyun Tuvali */
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Minimalist Arayüz Katmanları */
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .interactive {
+            pointer-events: auto;
+        }
+
+        /* Üst Gösterge Paneli (HUD) */
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .stats-panel, .time-panel {
+            background: var(--ui-bg);
+            border: 1px solid var(--ui-border);
+            padding: 12px 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .stat-bar-container {
+            width: 150px;
+            height: 10px;
+            background: #222;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .stat-bar {
+            height: 100%;
+            width: 100%;
+            transition: width 0.3s ease;
+        }
+
+        #hpBar { background: #a64444; }
+        #energyBar { background: #448ca6; }
+
+        /* Menü Şablonları */
+        .screen-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 12, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .menu-box {
+            background: var(--ui-bg);
+            border: 2px solid var(--ui-border);
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            color: var(--text-color);
+            font-weight: 300;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: var(--ui-border);
+            border: none;
+            color: var(--text-color);
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--accent-color);
+        }
+
+        /* Alttaki İnteraktif Paneller (Diyalog, Envanter) */
+        .hud-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        .dialogue-box {
+            background: var(--ui-bg);
+            border: 1px solid var(--ui-border);
+            padding: 20px;
+            border-radius: 8px;
+            width: 60%;
+            max-width: 600px;
+            min-height: 100px;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .dialogue-choices .choice-btn {
+            background: rgba(25,35,20,0.6);
+            border: 1px solid var(--ui-border);
+            color: white;
+            padding: 6px 12px;
+            margin: 5px 5px 0 0;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .inventory-preview {
+            background: var(--ui-bg);
+            border: 1px solid var(--ui-border);
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .inv-slot {
+            width: 45px;
+            height: 45px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--ui-border);
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            position: relative;
+        }
+
+        .inv-qty {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 0.65rem;
+        }
+
+        /* Mobil Kontroller */
+        #mobileControls {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: none;
+            touch-action: none;
+        }
+
+        #joystickKnob {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 50%;
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            touch-action: none;
+        }
+
+        #actionButton {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            width: 70px;
+            height: 70px;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            touch-action: none;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- UI Katmanı -->
+    <div class="ui-layer">
+        <!-- Üst Panel -->
+        <div class="hud-top">
+            <div class="stats-panel interactive">
+                <div>Sağlık</div>
+                <div class="stat-bar-container"><div id="hpBar" class="stat-bar"></div></div>
+                <div style="margin-top: 5px;">Enerji</div>
+                <div class="stat-bar-container"><div id="energyBar" class="stat-bar"></div></div>
+                <div id="playerLevel" style="margin-top: 5px; font-size: 0.85rem;">Seviye: 1 (0/100 XP)</div>
+            </div>
+            <div class="time-panel">
+                <div id="gameTime">Zaman: 08:00</div>
+                <div id="gameWeather" style="font-size: 0.85rem; color: #aaa;">Hava: Açık</div>
+                <div id="activeQuest" style="font-size: 0.85rem; margin-top: 5px; color: #dfc88b;">Görev: Yok</div>
+            </div>
+        </div>
+
+        <!-- Alt Panel -->
+        <div class="hud-bottom">
+            <!-- Diyalog Sistemi -->
+            <div id="dialogueBox" class="dialogue-box interactive">
+                <strong id="dialogueSpeaker">NPC Adı</strong>
+                <p id="dialogueText" style="margin: 8px 0; font-size: 0.95rem;"></p>
+                <div id="dialogueChoices" class="dialogue-choices"></div>
+            </div>
+
+            <!-- Envanter Özeti -->
+            <div class="inventory-preview interactive">
+                <div class="inv-slot" title="Odun">🪵<span id="qty-wood" class="inv-qty">0</span></div>
+                <div class="inv-slot" title="Şifalı Bitki">🌿<span id="qty-herb" class="inv-qty">0</span></div>
+                <div class="inv-slot" title="Geyik Eti">🥩<span id="qty-meat" class="inv-qty">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobil Dokunmatik Kontroller -->
+    <div id="mobileControls"><div id="joystickKnob"></div></div>
+    <div id="actionButton">E</div>
+
+    <!-- Giriş Menüsü -->
+    <div id="startMenu" class="screen-overlay">
+        <div class="menu-box interactive">
+            <h1>YABAN</h1>
+            <p style="font-size: 0.9rem; color: #888; margin-bottom: 20px;">Kayıp Patika</p>
+            <button class="btn" onclick="Game.startNewGame()">Yeni Hikaye</button>
+            <button class="btn" id="btnContinue" onclick="Game.loadGame()">Devam Et</button>
+            <button class="btn" onclick="Game.toggleSettings()">Ayarlar</button>
+        </div>
+    </div>
+
+    <!-- Ayarlar Menüsü -->
+    <div id="settingsMenu" class="screen-overlay hidden">
+        <div class="menu-box interactive">
+            <h1>Ayarlar</h1>
+            <label style="display:block; margin: 15px 0;">
+                Ses Efektleri: <input type="checkbox" id="settingSound" checked onchange="AudioEngine.toggleSound()">
+            </label>
+            <button class="btn" onclick="Game.toggleSettings()">Kapat</button>
+        </div>
+    </div>
+
+    <!-- Duraklatma Menüsü -->
+    <div id="pauseMenu" class="screen-overlay hidden">
+        <div class="menu-box interactive">
+            <h1>Oyun Durdu</h1>
+            <button class="btn" onclick="Game.resume()">Devam Et</button>
+            <button class="btn" onclick="Game.saveGame()">Oyunu Kaydet</button>
+            <button class="btn" onclick="location.reload()">Ana Menü</button>
+        </div>
+    </div>
+
+    <!-- Oyun Bitti Ekranı -->
+    <div id="gameOverMenu" class="screen-overlay hidden">
+        <div class="menu-box interactive">
+            <h1 style="color: #a64444;">Yorulup Düştün</h1>
+            <p style="margin-bottom: 20px;">Doğanın şartları ağır geldi.</p>
+            <button class="btn" onclick="location.reload()">Yeniden Dene</button>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * SES SENTEZLEYİCİ MOTORU (Web Audio API)
+         * Harici .mp3 dosyası indirmeden tamamen kodla ses üretir.
+         */
+        const AudioEngine = {
+            ctx: null,
+            enabled: true,
+
+            init() {
+                // Tarayıcı güvenlik politikaları gereği ses bağlamı kullanıcı etkileşimiyle başlatılır.
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            },
+
+            toggleSound() {
+                this.enabled = document.getElementById('settingSound').checked;
+            },
+
+            playClick() {
+                if (!this.enabled || !this.ctx) return;
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(thisNormally I can help with things like this, but I don't seem to have access to that content. You can try again or ask me for something else.
+                                                      
