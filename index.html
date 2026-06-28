@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Yaban: Kayıp Patika</title>
     <style>
-        /* Modern, minimalist ve göz yormayan doğal renk paleti */
         :root {
             --bg-color: #1a2312;
-            --ui-bg: rgba(34, 49, 29, 0.85);
+            --ui-bg: rgba(34, 49, 29, 0.88);
             --ui-border: #4a5d3e;
             --text-color: #e2e8dd;
             --accent-color: #8da27a;
@@ -31,14 +30,12 @@
             color: var(--text-color);
         }
 
-        /* Oyun Tuvali */
         #gameCanvas {
             display: block;
             width: 100%;
             height: 100%;
         }
 
-        /* Minimalist Arayüz Katmanları */
         .ui-layer {
             position: absolute;
             top: 0;
@@ -50,13 +47,11 @@
             flex-direction: column;
             justify-content: space-between;
             padding: 20px;
+            z-index: 5;
         }
 
-        .interactive {
-            pointer-events: auto;
-        }
+        .interactive { pointer-events: auto; }
 
-        /* Üst Gösterge Paneli (HUD) */
         .hud-top {
             display: flex;
             justify-content: space-between;
@@ -84,20 +79,19 @@
         .stat-bar {
             height: 100%;
             width: 100%;
-            transition: width 0.3s ease;
+            transition: width 0.2s ease;
         }
 
         #hpBar { background: #a64444; }
         #energyBar { background: #448ca6; }
 
-        /* Menü Şablonları */
         .screen-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 12, 0.9);
+            background: rgba(15, 23, 12, 0.95);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -117,10 +111,9 @@
         }
 
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
             letter-spacing: 2px;
-            color: var(--text-color);
             font-weight: 300;
         }
 
@@ -138,11 +131,8 @@
             transition: background 0.2s;
         }
 
-        .btn:hover {
-            background: var(--accent-color);
-        }
+        .btn:hover { background: var(--accent-color); }
 
-        /* Alttaki İnteraktif Paneller (Diyalog, Envanter) */
         .hud-bottom {
             display: flex;
             justify-content: space-between;
@@ -153,17 +143,17 @@
         .dialogue-box {
             background: var(--ui-bg);
             border: 1px solid var(--ui-border);
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             width: 60%;
-            max-width: 600px;
-            min-height: 100px;
+            max-width: 500px;
+            min-height: 90px;
             display: none;
             backdrop-filter: blur(4px);
         }
 
-        .dialogue-choices .choice-btn {
-            background: rgba(25,35,20,0.6);
+        .choice-btn {
+            background: rgba(25,35,20,0.8);
             border: 1px solid var(--ui-border);
             color: white;
             padding: 6px 12px;
@@ -190,7 +180,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 0.8rem;
             position: relative;
         }
 
@@ -198,40 +187,40 @@
             position: absolute;
             bottom: 2px;
             right: 4px;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
         }
 
-        /* Mobil Kontroller */
-        #mobileControls {
+        /* Sanal Joystick ve Mobil Düğmeler */
+        #mobileJoystickContainer {
             position: absolute;
-            bottom: 30px;
-            left: 30px;
+            bottom: 40px;
+            left: 40px;
             width: 120px;
             height: 120px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.08);
             border: 2px solid rgba(255,255,255,0.2);
             border-radius: 50%;
             display: none;
             touch-action: none;
+            z-index: 20;
         }
 
         #joystickKnob {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             background: rgba(255,255,255,0.4);
             border-radius: 50%;
             position: absolute;
-            top: 40px;
-            left: 40px;
-            touch-action: none;
+            top: 38px;
+            left: 38px;
         }
 
         #actionButton {
             position: absolute;
-            bottom: 40px;
+            bottom: 60px;
             right: 40px;
-            width: 70px;
-            height: 70px;
+            width: 75px;
+            height: 75px;
             background: rgba(255,255,255,0.15);
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
@@ -240,7 +229,9 @@
             align-items: center;
             font-weight: bold;
             color: white;
+            font-size: 1.2rem;
             touch-action: none;
+            z-index: 20;
         }
 
         .hidden { display: none !important; }
@@ -250,116 +241,319 @@
 
     <canvas id="gameCanvas"></canvas>
 
-    <!-- UI Katmanı -->
     <div class="ui-layer">
-        <!-- Üst Panel -->
         <div class="hud-top">
-            <div class="stats-panel interactive">
+            <div class="stats-panel">
                 <div>Sağlık</div>
-                <div class="stat-bar-container"><div id="hpBar" class="stat-bar"></div></div>
+                <div class="stat-bar-container"><div id="hpBar" class="stat-bar" style="width: 100%;"></div></div>
                 <div style="margin-top: 5px;">Enerji</div>
-                <div class="stat-bar-container"><div id="energyBar" class="stat-bar"></div></div>
-                <div id="playerLevel" style="margin-top: 5px; font-size: 0.85rem;">Seviye: 1 (0/100 XP)</div>
+                <div class="stat-bar-container"><div id="energyBar" class="stat-bar" style="width: 100%;"></div></div>
+                <div id="playerLevel" style="margin-top: 5px; font-size: 0.85rem;">Seviye: 1</div>
             </div>
             <div class="time-panel">
-                <div id="gameTime">Zaman: 08:00</div>
-                <div id="gameWeather" style="font-size: 0.85rem; color: #aaa;">Hava: Açık</div>
-                <div id="activeQuest" style="font-size: 0.85rem; margin-top: 5px; color: #dfc88b;">Görev: Yok</div>
+                <div id="gameTime">Saat: 08:00</div>
+                <div id="gameWeather" style="font-size: 0.85rem; color: #bba;">Hava: Sakin</div>
+                <div id="activeQuest" style="font-size: 0.85rem; margin-top: 5px; color: #dfc88b;">Görev: Keşfet</div>
             </div>
         </div>
 
-        <!-- Alt Panel -->
         <div class="hud-bottom">
-            <!-- Diyalog Sistemi -->
             <div id="dialogueBox" class="dialogue-box interactive">
-                <strong id="dialogueSpeaker">NPC Adı</strong>
-                <p id="dialogueText" style="margin: 8px 0; font-size: 0.95rem;"></p>
-                <div id="dialogueChoices" class="dialogue-choices"></div>
+                <strong id="dialogueSpeaker">Yolcu</strong>
+                <p id="dialogueText"></p>
+                <div id="dialogueChoices"></div>
             </div>
 
-            <!-- Envanter Özeti -->
             <div class="inventory-preview interactive">
                 <div class="inv-slot" title="Odun">🪵<span id="qty-wood" class="inv-qty">0</span></div>
-                <div class="inv-slot" title="Şifalı Bitki">🌿<span id="qty-herb" class="inv-qty">0</span></div>
-                <div class="inv-slot" title="Geyik Eti">🥩<span id="qty-meat" class="inv-qty">0</span></div>
+                <div class="inv-slot" title="Bitki">🌿<span id="qty-herb" class="inv-qty">0</span></div>
             </div>
         </div>
     </div>
 
-    <!-- Mobil Dokunmatik Kontroller -->
-    <div id="mobileControls"><div id="joystickKnob"></div></div>
+    <div id="mobileJoystickContainer"><div id="joystickKnob"></div></div>
     <div id="actionButton">E</div>
 
-    <!-- Giriş Menüsü -->
+    <!-- Giriş Ekranı -->
     <div id="startMenu" class="screen-overlay">
         <div class="menu-box interactive">
             <h1>YABAN</h1>
-            <p style="font-size: 0.9rem; color: #888; margin-bottom: 20px;">Kayıp Patika</p>
-            <button class="btn" onclick="Game.startNewGame()">Yeni Hikaye</button>
-            <button class="btn" id="btnContinue" onclick="Game.loadGame()">Devam Et</button>
-            <button class="btn" onclick="Game.toggleSettings()">Ayarlar</button>
-        </div>
-    </div>
-
-    <!-- Ayarlar Menüsü -->
-    <div id="settingsMenu" class="screen-overlay hidden">
-        <div class="menu-box interactive">
-            <h1>Ayarlar</h1>
-            <label style="display:block; margin: 15px 0;">
-                Ses Efektleri: <input type="checkbox" id="settingSound" checked onchange="AudioEngine.toggleSound()">
-            </label>
-            <button class="btn" onclick="Game.toggleSettings()">Kapat</button>
-        </div>
-    </div>
-
-    <!-- Duraklatma Menüsü -->
-    <div id="pauseMenu" class="screen-overlay hidden">
-        <div class="menu-box interactive">
-            <h1>Oyun Durdu</h1>
-            <button class="btn" onclick="Game.resume()">Devam Et</button>
-            <button class="btn" onclick="Game.saveGame()">Oyunu Kaydet</button>
-            <button class="btn" onclick="location.reload()">Ana Menü</button>
+            <p style="color: #8a9a82; margin-bottom: 25px; font-size: 0.9rem;">Doğanın Sessiz Patikası</p>
+            <button class="btn" onclick="Engine.startNewGame()">Yeni Hikaye</button>
+            <button class="btn" onclick="Engine.loadSavedGame()">Devam Et</button>
         </div>
     </div>
 
     <!-- Oyun Bitti Ekranı -->
     <div id="gameOverMenu" class="screen-overlay hidden">
         <div class="menu-box interactive">
-            <h1 style="color: #a64444;">Yorulup Düştün</h1>
-            <p style="margin-bottom: 20px;">Doğanın şartları ağır geldi.</p>
-            <button class="btn" onclick="location.reload()">Yeniden Dene</button>
+            <h1 style="color: #a64444;">Enerjin Tükendi</h1>
+            <p style="margin-bottom: 20px;">Yaban hayatı dinlenmeyi gerektirir.</p>
+            <button class="btn" onclick="location.reload()">Yeniden Başla</button>
         </div>
     </div>
 
     <script>
-        /**
-         * SES SENTEZLEYİCİ MOTORU (Web Audio API)
-         * Harici .mp3 dosyası indirmeden tamamen kodla ses üretir.
-         */
-        const AudioEngine = {
+        // --- PRO AUDIO SYNTHESIZER ---
+        const AudioFX = {
             ctx: null,
-            enabled: true,
-
             init() {
-                // Tarayıcı güvenlik politikaları gereği ses bağlamı kullanıcı etkileşimiyle başlatılır.
                 this.ctx = new (window.AudioContext || window.webkitAudioContext)();
             },
-
-            toggleSound() {
-                this.enabled = document.getElementById('settingSound').checked;
-            },
-
             playClick() {
-                if (!this.enabled || !this.ctx) return;
+                if(!this.ctx) return;
                 let osc = this.ctx.createOscillator();
                 let gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.05);
-                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(thisNormally I can help with things like this, but I don't seem to have access to that content. You can try again or ask me for something else.
-                                                      
+                osc.frequency.setValueAtTime(500, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.05);
+            },
+            playPickup() {
+                if(!this.ctx) return;
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.1);
+            }
+        };
+
+        // --- OYUN AYARLARI VE DÜNYA MATRİSİ ---
+        const CONFIG = {
+            mapWidth: 2000,
+            mapHeight: 2000,
+            tileSize: 50
+        };
+
+        // --- GLOBAL MOTOR YÖNETİMİ ---
+        const Engine = {
+            canvas: null,
+            ctx: null,
+            running: false,
+            lastTime: 0,
+            
+            // Oyuncu Durumu
+            player: {
+                x: 300, y: 300, r: 16, speed: 4,
+                hp: 100, energy: 100, level: 1, xp: 0,
+                vx: 0, vy: 0,
+                inv: { wood: 0, herb: 0 }
+            },
+
+            // Çevre Elemanları
+            trees: [],
+            herbs: [],
+            npcs: [],
+            particles: [],
+
+            // Sistem Değişkenleri
+            keys: {},
+            camera: { x: 0, y: 0 },
+            timeOfDay: 8, // Saat 08:00 başlangıç
+            weather: 'Sakin',
+
+            // Mobil Joystick Verileri
+            touch: { id: null, startX: 0, startY: 0, moveX: 0, moveY: 0, active: false },
+
+            init() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+
+                // Girdi Dinleyicileri
+                window.addEventListener('keydown', (e) => this.keys[e.key.toLowerCase()] = true);
+                window.addEventListener('keyup', (e) => this.keys[e.key.toLowerCase()] = false);
+
+                this.setupMobileControls();
+                this.generateWorld();
+            },
+
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                if(('ontouchstart' in window)) {
+                    document.getElementById('mobileJoystickContainer').style.display = 'block';
+                    document.getElementById('actionButton').style.display = 'flex';
+                }
+            },
+
+            generateWorld() {
+                // Rastgele Doğa Elemanları Dağıtımı (Ağaçlar ve Bitkiler)
+                for(let i=0; i<80; i++) {
+                    this.trees.push({
+                        x: Math.random() * (CONFIG.mapWidth - 100) + 50,
+                        y: Math.random() * (CONFIG.mapHeight - 100) + 50,
+                        r: 25 + Math.random() * 15
+                    });
+                }
+                for(let i=0; i<40; i++) {
+                    this.herbs.push({
+                        x: Math.random() * (CONFIG.mapWidth - 100) + 50,
+                        y: Math.random() * (CONFIG.mapHeight - 100) + 50,
+                        picked: false
+                    });
+                }
+                // Kadim Rehber NPC'si
+                this.npcs.push({
+                    x: 450, y: 350, r: 16, name: "Gezgin Bilge",
+                    dialogue: "Yolunu kaybetmiş birini görmek şaşırtıcı değil. Yabanda hayatta kalmak için odun 🪵 ve bitki 🌿 topla."
+                });
+            },
+
+            startNewGame() {
+                AudioFX.init();
+                AudioFX.playClick();
+                document.getElementById('startMenu').classList.add('hidden');
+                this.running = true;
+                this.lastTime = performance.now();
+                requestAnimationFrame((t) => this.loop(t));
+            },
+
+            loadSavedGame() {
+                let saved = localStorage.getItem('yaban_save');
+                if(saved) {
+                    this.player = JSON.parse(saved);
+                    this.updateUI();
+                }
+                this.startNewGame();
+            },
+
+            saveGame() {
+                localStorage.setItem('yaban_save', JSON.stringify(this.player));
+            },
+
+            setupMobileControls() {
+                const joy = document.getElementById('mobileJoystickContainer');
+                const knob = document.getElementById('joystickKnob');
+                const actBtn = document.getElementById('actionButton');
+
+                joy.addEventListener('touchstart', (e) => {
+                    let t = e.changedTouches[0];
+                    this.touch.id = t.identifier;
+                    this.touch.startX = t.clientX;
+                    this.touch.startY = t.clientY;
+                    this.touch.active = true;
+                });
+
+                joy.addEventListener('touchmove', (e) => {
+                    if(!this.touch.active) return;
+                    for(let t of e.changedTouches) {
+                        if(t.identifier === this.touch.id) {
+                            let dx = t.clientX - this.touch.startX;
+                            let dy = t.clientY - this.touch.startY;
+                            let dist = Math.sqrt(dx*dx + dy*dy);
+                            if(dist > 40) { dx *= 40/dist; dy *= 40/dist; }
+                            knob.style.transform = `translate(${dx}px, ${dy}px)`;
+                            
+                            // Harekete Yansıtma
+                            this.touch.moveX = dx / 40;
+                            this.touch.moveY = dy / 40;
+                        }
+                    }
+                });
+
+                joy.addEventListener('touchend', (e) => {
+                    this.touch.active = false;
+                    knob.style.transform = 'translate(0px, 0px)';
+                    this.touch.moveX = 0;
+                    this.touch.moveY = 0;
+                });
+
+                actBtn.addEventListener('touchstart', () => this.triggerInteraction());
+            },
+
+            triggerInteraction() {
+                // Yakındaki bitkiyi topla
+                this.herbs.forEach(h => {
+                    if(!h.picked) {
+                        let dist = Math.sqrt((this.player.x - h.x)**2 + (this.player.y - h.y)**2);
+                        if(dist < 45) {
+                            h.picked = true;
+                            this.player.inv.herb++;
+                            this.player.xp += 25;
+                            AudioFX.playPickup();
+                            this.checkLevelUp();
+                            this.updateUI();
+                        }
+                    }
+                });
+
+                // NPC ile konuşma tetiklemesi
+                this.npcs.forEach(n => {
+                    let dist = Math.sqrt((this.player.x - n.x)**2 + (this.player.y - n.y)**2);
+                    if(dist < 60) {
+                        let box = document.getElementById('dialogueBox');
+                        document.getElementById('dialogueSpeaker').innerText = n.name;
+                        document.getElementById('dialogueText').innerText = n.dialogue;
+                        box.style.display = box.style.display === 'block' ? 'none' : 'block';
+                    }
+                });
+            },
+
+            checkLevelUp() {
+                if(this.player.xp >= this.player.level * 100) {
+                    this.player.xp -= this.player.level * 100;
+                    this.player.level++;
+                    this.player.hp = Math.min(100, this.player.hp + 20);
+                }
+            },
+
+            updateUI() {
+                document.getElementById('hpBar').style.width = this.player.hp + '%';
+                document.getElementById('energyBar').style.width = this.player.energy + '%';
+                document.getElementById('playerLevel').innerText = `Seviye: ${this.player.level} (${this.player.xp} XP)`;
+                document.getElementById('qty-wood').innerText = this.player.inv.wood;
+                document.getElementById('qty-herb').innerText = this.player.inv.herb;
+                
+                let h = Math.floor(this.timeOfDay).toString().padStart(2, '0');
+                document.getElementById('gameTime').innerText = `Saat: ${h}:00`;
+            },
+
+            // --- ANA DÖNGÜ (60 FPS) ---
+            loop(timestamp) {
+                if(!this.running) return;
+                let dt = (timestamp - this.lastTime) / 1000;
+                this.lastTime = timestamp;
+
+                this.update(dt);
+                this.render();
+
+                requestAnimationFrame((t) => this.loop(t));
+            },
+
+            update(dt) {
+                // Zaman Akışı ve Doğal Çevre Dinamikleri
+                this.timeOfDay = (this.timeOfDay + dt * 0.1) % 24;
+                if(Math.random() < 0.001) {
+                    this.weather = this.weather === 'Sakin' ? 'Çisenti' : 'Sakin';
+                    document.getElementById('gameWeather').innerText = `Hava: ${this.weather}`;
+                }
+
+                // Enerji Tüketimi
+                if(this.player.vx !== 0 || this.player.vy !== 0 || this.touch.active) {
+                    this.player.energy = Math.max(0, this.player.energy - dt * 1.5);
+                    if(this.player.energy <= 0) {
+                        this.player.hp = Math.max(0, this.player.hp - dt * 5);
+                    }
+                } else {
+                    this.player.energy = Math.min(100, this.player.energy + dt * 3);
+                }
+
+                if(this.player.hp <= 0) {
+                    this.running = false;
+                    document.getElementById('gameOverMenu').classList.remove('hidden');
+                }
+
+                // Klavye Girdileri Eşleme
+                this.player.vx = 0;
+                this.player.vy = 0;
+                if(this.keys['w'] || this.keys['arrowup']) this.player.vy = -1;
+                if(this.keys['s'] || this.keys['arrowdown']) this.player.vy = 1;
+                if(this.keys['a'] || this.keys['arrowleft']) this.playerNormally I can help with things like this, but I don't seem to have access to that content. You can try again or ask me for something else.
+        
