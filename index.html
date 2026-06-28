@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Yaban: Kayıp Patika</title>
     <style>
+        /* Doğal ve göz yormayan minimalist renk paleti */
         :root {
-            --bg-color: #1a2312;
-            --ui-bg: rgba(34, 49, 29, 0.88);
-            --ui-border: #4a5d3e;
-            --text-color: #e2e8dd;
-            --accent-color: #8da27a;
+            --bg-color: #1b2416;
+            --ui-bg: rgba(28, 38, 24, 0.9);
+            --ui-border: #425238;
+            --text-color: #e4ebd9;
+            --accent-color: #798c6b;
         }
 
         * {
@@ -26,7 +27,7 @@
             height: 100%;
             overflow: hidden;
             background-color: var(--bg-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
             color: var(--text-color);
         }
 
@@ -36,6 +37,7 @@
             height: 100%;
         }
 
+        /* Arayüz Düzeni */
         .ui-layer {
             position: absolute;
             top: 0;
@@ -46,7 +48,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 20px;
+            padding: 16px;
             z-index: 5;
         }
 
@@ -61,37 +63,104 @@
         .stats-panel, .time-panel {
             background: var(--ui-bg);
             border: 1px solid var(--ui-border);
-            padding: 12px 20px;
+            padding: 12px;
             border-radius: 8px;
-            backdrop-filter: blur(4px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
-        .stat-bar-container {
-            width: 150px;
-            height: 10px;
-            background: #222;
-            border-radius: 5px;
-            margin-top: 5px;
+        .stat-line {
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+
+        .stat-bar-bg {
+            width: 140px;
+            height: 8px;
+            background: #111;
+            border-radius: 4px;
             overflow: hidden;
+            margin-top: 2px;
         }
 
         .stat-bar {
             height: 100%;
             width: 100%;
-            transition: width 0.2s ease;
+            transition: width 0.1s linear;
         }
 
-        #hpBar { background: #a64444; }
-        #energyBar { background: #448ca6; }
+        #hpBar { background: #b33939; }
+        #energyBar { background: #218c74; }
 
+        .hud-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        /* Diyalog Penceresi */
+        .dialogue-box {
+            background: var(--ui-bg);
+            border: 1px solid var(--ui-border);
+            padding: 14px;
+            border-radius: 8px;
+            width: 55%;
+            max-width: 500px;
+            min-height: 80px;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .choice-btn {
+            background: #2c3a25;
+            border: 1px solid var(--ui-border);
+            color: white;
+            padding: 6px 12px;
+            margin-top: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .inventory-preview {
+            background: var(--ui-bg);
+            border: 1px solid var(--ui-border);
+            padding: 8px;
+            border-radius: 8px;
+            display: flex;
+            gap: 6px;
+        }
+
+        .inv-slot {
+            width: 42px;
+            height: 42px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--ui-border);
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            font-size: 1.2rem;
+        }
+
+        .inv-qty {
+            position: absolute;
+            bottom: 1px;
+            right: 3px;
+            font-size: 0.65rem;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        /* Tam Ekran Menüler */
         .screen-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 12, 0.95);
+            background: #11180f;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -101,20 +170,20 @@
 
         .menu-box {
             background: var(--ui-bg);
-            border: 2px solid var(--ui-border);
-            padding: 40px;
+            border: 1px solid var(--ui-border);
+            padding: 30px;
             border-radius: 12px;
             text-align: center;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 85%;
+            max-width: 360px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
         }
 
         h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            letter-spacing: 2px;
-            font-weight: 300;
+            font-size: 2rem;
+            margin-bottom: 6px;
+            letter-spacing: 3px;
+            font-weight: 400;
         }
 
         .btn {
@@ -133,72 +202,15 @@
 
         .btn:hover { background: var(--accent-color); }
 
-        .hud-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            width: 100%;
-        }
-
-        .dialogue-box {
-            background: var(--ui-bg);
-            border: 1px solid var(--ui-border);
-            padding: 15px;
-            border-radius: 8px;
-            width: 60%;
-            max-width: 500px;
-            min-height: 90px;
-            display: none;
-            backdrop-filter: blur(4px);
-        }
-
-        .choice-btn {
-            background: rgba(25,35,20,0.8);
-            border: 1px solid var(--ui-border);
-            color: white;
-            padding: 6px 12px;
-            margin: 5px 5px 0 0;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .inventory-preview {
-            background: var(--ui-bg);
-            border: 1px solid var(--ui-border);
-            padding: 10px;
-            border-radius: 8px;
-            display: flex;
-            gap: 8px;
-        }
-
-        .inv-slot {
-            width: 45px;
-            height: 45px;
-            background: rgba(0,0,0,0.4);
-            border: 1px solid var(--ui-border);
-            border-radius: 4px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
-        .inv-qty {
+        /* Mobil Kontroller */
+        #mobileJoystick {
             position: absolute;
-            bottom: 2px;
-            right: 4px;
-            font-size: 0.7rem;
-        }
-
-        /* Sanal Joystick ve Mobil Düğmeler */
-        #mobileJoystickContainer {
-            position: absolute;
-            bottom: 40px;
-            left: 40px;
-            width: 120px;
-            height: 120px;
-            background: rgba(255,255,255,0.08);
-            border: 2px solid rgba(255,255,255,0.2);
+            bottom: 30px;
+            left: 30px;
+            width: 110px;
+            height: 110px;
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.15);
             border-radius: 50%;
             display: none;
             touch-action: none;
@@ -206,30 +218,30 @@
         }
 
         #joystickKnob {
-            width: 44px;
-            height: 44px;
-            background: rgba(255,255,255,0.4);
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.35);
             border-radius: 50%;
             position: absolute;
-            top: 38px;
-            left: 38px;
+            top: 33px;
+            left: 33px;
         }
 
         #actionButton {
             position: absolute;
-            bottom: 60px;
-            right: 40px;
-            width: 75px;
-            height: 75px;
-            background: rgba(255,255,255,0.15);
-            border: 2px solid rgba(255,255,255,0.3);
+            bottom: 45px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background: rgba(255,255,255,0.12);
+            border: 2px solid rgba(255,255,255,0.25);
             border-radius: 50%;
             display: none;
             justify-content: center;
             align-items: center;
             font-weight: bold;
             color: white;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             touch-action: none;
             z-index: 20;
         }
@@ -244,200 +256,167 @@
     <div class="ui-layer">
         <div class="hud-top">
             <div class="stats-panel">
-                <div>Sağlık</div>
-                <div class="stat-bar-container"><div id="hpBar" class="stat-bar" style="width: 100%;"></div></div>
-                <div style="margin-top: 5px;">Enerji</div>
-                <div class="stat-bar-container"><div id="energyBar" class="stat-bar" style="width: 100%;"></div></div>
-                <div id="playerLevel" style="margin-top: 5px; font-size: 0.85rem;">Seviye: 1</div>
+                <div class="stat-line">Can<div class="stat-bar-bg"><div id="hpBar" class="stat-bar"></div></div></div>
+                <div class="stat-line">Enerji<div class="stat-bar-bg"><div id="energyBar" class="stat-bar"></div></div></div>
+                <div id="playerLevel" style="font-size: 0.8rem; color: #bbb;">Seviye: 1</div>
             </div>
             <div class="time-panel">
-                <div id="gameTime">Saat: 08:00</div>
-                <div id="gameWeather" style="font-size: 0.85rem; color: #bba;">Hava: Sakin</div>
-                <div id="activeQuest" style="font-size: 0.85rem; margin-top: 5px; color: #dfc88b;">Görev: Keşfet</div>
+                <div id="gameTime">Zaman: 08:00</div>
+                <div id="gameWeather" style="font-size: 0.8rem; color: #a5b599;">Hava: Açık</div>
+                <div id="activeQuest" style="font-size: 0.8rem; color: #dfc88b; margin-top: 4px;">Görev: Çevreyi Keşfet</div>
             </div>
         </div>
 
         <div class="hud-bottom">
             <div id="dialogueBox" class="dialogue-box interactive">
-                <strong id="dialogueSpeaker">Yolcu</strong>
-                <p id="dialogueText"></p>
+                <strong id="dialogueSpeaker" style="color: #dfc88b;">-</strong>
+                <p id="dialogueText" style="font-size: 0.9rem; margin-top: 4px;"></p>
                 <div id="dialogueChoices"></div>
             </div>
 
             <div class="inventory-preview interactive">
                 <div class="inv-slot" title="Odun">🪵<span id="qty-wood" class="inv-qty">0</span></div>
-                <div class="inv-slot" title="Bitki">🌿<span id="qty-herb" class="inv-qty">0</span></div>
+                <div class="inv-slot" title="Şifalı Bitki">🌿<span id="qty-herb" class="inv-qty">0</span></div>
             </div>
         </div>
     </div>
 
-    <div id="mobileJoystickContainer"><div id="joystickKnob"></div></div>
+    <div id="mobileJoystick"><div id="joystickKnob"></div></div>
     <div id="actionButton">E</div>
 
-    <!-- Giriş Ekranı -->
+    <!-- Menüler -->
     <div id="startMenu" class="screen-overlay">
         <div class="menu-box interactive">
             <h1>YABAN</h1>
-            <p style="color: #8a9a82; margin-bottom: 25px; font-size: 0.9rem;">Doğanın Sessiz Patikası</p>
-            <button class="btn" onclick="Engine.startNewGame()">Yeni Hikaye</button>
-            <button class="btn" onclick="Engine.loadSavedGame()">Devam Et</button>
+            <p style="color: #697d5a; font-size: 0.85rem; margin-bottom: 20px;">Kayıp Patika v1.0</p>
+            <button class="btn" id="btnPlay">Hikayeye Başla</button>
         </div>
     </div>
 
-    <!-- Oyun Bitti Ekranı -->
     <div id="gameOverMenu" class="screen-overlay hidden">
         <div class="menu-box interactive">
-            <h1 style="color: #a64444;">Enerjin Tükendi</h1>
-            <p style="margin-bottom: 20px;">Yaban hayatı dinlenmeyi gerektirir.</p>
-            <button class="btn" onclick="location.reload()">Yeniden Başla</button>
+            <h1 style="color: #b33939;">Yorulup Düştün</h1>
+            <p style="font-size: 0.9rem; margin-bottom: 20px;">Doğanın dengesi ağırdır, dinlenmelisin.</p>
+            <button class="btn" onclick="location.reload()">Yeniden Dene</button>
         </div>
     </div>
 
     <script>
-        // --- PRO AUDIO SYNTHESIZER ---
-        const AudioFX = {
+        // --- BASİT SES SENTEZLEYİCİ ---
+        const Sound = {
             ctx: null,
             init() {
-                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                try {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch(e) { console.log("Audio not supported"); }
             },
-            playClick() {
+            playTick() {
                 if(!this.ctx) return;
                 let osc = this.ctx.createOscillator();
                 let gain = this.ctx.createGain();
-                osc.frequency.setValueAtTime(500, this.ctx.currentTime);
+                osc.frequency.setValueAtTime(440, this.ctx.currentTime);
                 gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
                 osc.connect(gain); gain.connect(this.ctx.destination);
-                osc.start(); osc.stop(this.ctx.currentTime + 0.05);
-            },
-            playPickup() {
-                if(!this.ctx) return;
-                let osc = this.ctx.createOscillator();
-                let gain = this.ctx.createGain();
-                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
-                osc.connect(gain); gain.connect(this.ctx.destination);
-                osc.start(); osc.stop(this.ctx.currentTime + 0.1);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.04);
             }
         };
 
-        // --- OYUN AYARLARI VE DÜNYA MATRİSİ ---
-        const CONFIG = {
-            mapWidth: 2000,
-            mapHeight: 2000,
-            tileSize: 50
+        // --- HARİTA VE DÜNYA AYARLARI ---
+        const World = {
+            width: 1600,
+            height: 1600,
+            trees: [],
+            herbs: [],
+            npc: { x: 400, y: 350, r: 15, name: "Yolcu", talked: false }
         };
 
-        // --- GLOBAL MOTOR YÖNETİMİ ---
-        const Engine = {
+        // --- OYUNCU AYARLARI ---
+        const Player = {
+            x: 250, y: 250, r: 14, speed: 180,
+            hp: 100, energy: 100, xp: 0, level: 1,
+            wood: 0, herb: 0
+        };
+
+        // --- MOTOR KONTROLÜ ---
+        const Game = {
             canvas: null,
             ctx: null,
             running: false,
             lastTime: 0,
-            
-            // Oyuncu Durumu
-            player: {
-                x: 300, y: 300, r: 16, speed: 4,
-                hp: 100, energy: 100, level: 1, xp: 0,
-                vx: 0, vy: 0,
-                inv: { wood: 0, herb: 0 }
-            },
-
-            // Çevre Elemanları
-            trees: [],
-            herbs: [],
-            npcs: [],
-            particles: [],
-
-            // Sistem Değişkenleri
             keys: {},
             camera: { x: 0, y: 0 },
-            timeOfDay: 8, // Saat 08:00 başlangıç
-            weather: 'Sakin',
-
-            // Mobil Joystick Verileri
-            touch: { id: null, startX: 0, startY: 0, moveX: 0, moveY: 0, active: false },
+            timeOfDay: 8,
+            
+            // Mobil dokunmatik durumları
+            touch: { active: false, id: null, sx: 0, sy: 0, mx: 0, my: 0 },
 
             init() {
                 this.canvas = document.getElementById('gameCanvas');
                 this.ctx = this.canvas.getContext('2d');
-                this.resizeCanvas();
-                window.addEventListener('resize', () => this.resizeCanvas());
+                
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
 
-                // Girdi Dinleyicileri
-                window.addEventListener('keydown', (e) => this.keys[e.key.toLowerCase()] = true);
-                window.addEventListener('keyup', (e) => this.keys[e.key.toLowerCase()] = false);
+                // Girdileri Bağla
+                window.addEventListener('keydown', (e) => { this.keys[e.key.toLowerCase()] = true; });
+                window.addEventListener('keyup', (e) => { this.keys[e.key.toLowerCase()] = false; });
 
-                this.setupMobileControls();
-                this.generateWorld();
+                // Buton Tetikleyici (Kesin Açılma Garantili Alternatif Bağlantı)
+                document.getElementById('btnPlay').addEventListener('click', () => this.start());
+
+                this.buildWorld();
+                this.setupMobile();
+                this.updateUI();
             },
 
-            resizeCanvas() {
+            resize() {
                 this.canvas.width = window.innerWidth;
                 this.canvas.height = window.innerHeight;
-                if(('ontouchstart' in window)) {
-                    document.getElementById('mobileJoystickContainer').style.display = 'block';
+                if ('ontouchstart' in window) {
+                    document.getElementById('mobileJoystick').style.display = 'block';
                     document.getElementById('actionButton').style.display = 'flex';
                 }
             },
 
-            generateWorld() {
-                // Rastgele Doğa Elemanları Dağıtımı (Ağaçlar ve Bitkiler)
-                for(let i=0; i<80; i++) {
-                    this.trees.push({
-                        x: Math.random() * (CONFIG.mapWidth - 100) + 50,
-                        y: Math.random() * (CONFIG.mapHeight - 100) + 50,
-                        r: 25 + Math.random() * 15
+            buildWorld() {
+                // Rastgele engeller ve ağaçlar üretimi
+                for(let i=0; i<60; i++) {
+                    World.trees.push({
+                        x: Math.random() * (World.width - 120) + 60,
+                        y: Math.random() * (World.height - 120) + 60,
+                        r: 20 + Math.random() * 15
                     });
                 }
-                for(let i=0; i<40; i++) {
-                    this.herbs.push({
-                        x: Math.random() * (CONFIG.mapWidth - 100) + 50,
-                        y: Math.random() * (CONFIG.mapHeight - 100) + 50,
-                        picked: false
+                // Toplanabilir şifalı bitkiler
+                for(let i=0; i<30; i++) {
+                    World.herbs.push({
+                        x: Math.random() * (World.width - 100) + 50,
+                        y: Math.random() * (World.height - 100) + 50,
+                        active: true
                     });
                 }
-                // Kadim Rehber NPC'si
-                this.npcs.push({
-                    x: 450, y: 350, r: 16, name: "Gezgin Bilge",
-                    dialogue: "Yolunu kaybetmiş birini görmek şaşırtıcı değil. Yabanda hayatta kalmak için odun 🪵 ve bitki 🌿 topla."
-                });
             },
 
-            startNewGame() {
-                AudioFX.init();
-                AudioFX.playClick();
+            start() {
+                Sound.init();
+                Sound.playTick();
                 document.getElementById('startMenu').classList.add('hidden');
                 this.running = true;
                 this.lastTime = performance.now();
                 requestAnimationFrame((t) => this.loop(t));
             },
 
-            loadSavedGame() {
-                let saved = localStorage.getItem('yaban_save');
-                if(saved) {
-                    this.player = JSON.parse(saved);
-                    this.updateUI();
-                }
-                this.startNewGame();
-            },
-
-            saveGame() {
-                localStorage.setItem('yaban_save', JSON.stringify(this.player));
-            },
-
-            setupMobileControls() {
-                const joy = document.getElementById('mobileJoystickContainer');
+            setupMobile() {
+                const joy = document.getElementById('mobileJoystick');
                 const knob = document.getElementById('joystickKnob');
-                const actBtn = document.getElementById('actionButton');
+                const act = document.getElementById('actionButton');
 
                 joy.addEventListener('touchstart', (e) => {
                     let t = e.changedTouches[0];
                     this.touch.id = t.identifier;
-                    this.touch.startX = t.clientX;
-                    this.touch.startY = t.clientY;
+                    this.touch.sx = t.clientX;
+                    this.touch.sy = t.clientY;
                     this.touch.active = true;
                 });
 
@@ -445,80 +424,89 @@
                     if(!this.touch.active) return;
                     for(let t of e.changedTouches) {
                         if(t.identifier === this.touch.id) {
-                            let dx = t.clientX - this.touch.startX;
-                            let dy = t.clientY - this.touch.startY;
+                            let dx = t.clientX - this.touch.sx;
+                            let dy = t.clientY - this.touch.sy;
                             let dist = Math.sqrt(dx*dx + dy*dy);
-                            if(dist > 40) { dx *= 40/dist; dy *= 40/dist; }
+                            if(dist > 35) { dx *= 35/dist; dy *= 35/dist; }
                             knob.style.transform = `translate(${dx}px, ${dy}px)`;
-                            
-                            // Harekete Yansıtma
-                            this.touch.moveX = dx / 40;
-                            this.touch.moveY = dy / 40;
+                            this.touch.mx = dx / 35;
+                            this.touch.my = dy / 35;
                         }
                     }
                 });
 
-                joy.addEventListener('touchend', (e) => {
+                joy.addEventListener('touchend', () => {
                     this.touch.active = false;
                     knob.style.transform = 'translate(0px, 0px)';
-                    this.touch.moveX = 0;
-                    this.touch.moveY = 0;
+                    this.touch.mx = 0;
+                    this.touch.my = 0;
                 });
 
-                actBtn.addEventListener('touchstart', () => this.triggerInteraction());
+                act.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.interact();
+                });
+                
+                // Klavye E tuşu etkileşimi
+                window.addEventListener('keydown', (e) => {
+                    if(e.key.toLowerCase() === 'e') this.interact();
+                });
             },
 
-            triggerInteraction() {
-                // Yakındaki bitkiyi topla
-                this.herbs.forEach(h => {
-                    if(!h.picked) {
-                        let dist = Math.sqrt((this.player.x - h.x)**2 + (this.player.y - h.y)**2);
-                        if(dist < 45) {
-                            h.picked = true;
-                            this.player.inv.herb++;
-                            this.player.xp += 25;
-                            AudioFX.playPickup();
-                            this.checkLevelUp();
+            interact() {
+                // Bitki toplama mekaniği
+                World.herbs.forEach(h => {
+                    if(h.active) {
+                        let d = Math.sqrt((Player.x - h.x)**2 + (Player.y - h.y)**2);
+                        if(d < 40) {
+                            h.active = false;
+                            Player.herb++;
+                            Player.xp += 35;
+                            Sound.playTick();
+                            this.checkLevel();
                             this.updateUI();
                         }
                     }
                 });
 
-                // NPC ile konuşma tetiklemesi
-                this.npcs.forEach(n => {
-                    let dist = Math.sqrt((this.player.x - n.x)**2 + (this.player.y - n.y)**2);
-                    if(dist < 60) {
-                        let box = document.getElementById('dialogueBox');
-                        document.getElementById('dialogueSpeaker').innerText = n.name;
-                        document.getElementById('dialogueText').innerText = n.dialogue;
-                        box.style.display = box.style.display === 'block' ? 'none' : 'block';
+                // NPC Konuşma Mekaniği
+                let dNpc = Math.sqrt((Player.x - World.npc.x)**2 + (Player.y - World.npc.y)**2);
+                if(dNpc < 50) {
+                    let box = document.getElementById('dialogueBox');
+                    document.getElementById('dialogueSpeaker').innerText = World.npc.name;
+                    document.getElementById('dialogueText').innerText = "Selam yabancı. Bu ormanda yeşil bitkileri 🌿 toplayarak güç kazanabilirsin. Ağaçların arasından patikayı bul!";
+                    box.style.display = box.style.display === 'block' ? 'none' : 'block';
+                    if(!World.npc.talked) {
+                        World.npc.talked = true;
+                        Player.xp += 20;
+                        this.checkLevel();
+                        this.updateUI();
                     }
-                });
+                }
             },
 
-            checkLevelUp() {
-                if(this.player.xp >= this.player.level * 100) {
-                    this.player.xp -= this.player.level * 100;
-                    this.player.level++;
-                    this.player.hp = Math.min(100, this.player.hp + 20);
+            checkLevel() {
+                if(Player.xp >= Player.level * 100) {
+                    Player.xp -= Player.level * 100;
+                    Player.level++;
                 }
             },
 
             updateUI() {
-                document.getElementById('hpBar').style.width = this.player.hp + '%';
-                document.getElementById('energyBar').style.width = this.player.energy + '%';
-                document.getElementById('playerLevel').innerText = `Seviye: ${this.player.level} (${this.player.xp} XP)`;
-                document.getElementById('qty-wood').innerText = this.player.inv.wood;
-                document.getElementById('qty-herb').innerText = this.player.inv.herb;
+                document.getElementById('hpBar').style.width = Player.hp + '%';
+                document.getElementById('energyBar').style.width = Player.energy + '%';
+                document.getElementById('playerLevel').innerText = `Seviye: ${Player.level} (${Player.xp}/100 XP)`;
+                document.getElementById('qty-wood').innerText = Player.wood;
+                document.getElementById('qty-herb').innerText = Player.herb;
                 
                 let h = Math.floor(this.timeOfDay).toString().padStart(2, '0');
-                document.getElementById('gameTime').innerText = `Saat: ${h}:00`;
+                document.getElementById('gameTime').innerText = `Zaman: ${h}:00`;
             },
 
-            // --- ANA DÖNGÜ (60 FPS) ---
             loop(timestamp) {
                 if(!this.running) return;
                 let dt = (timestamp - this.lastTime) / 1000;
+                if(dt > 0.1) dt = 0.1; // Kasma koruması
                 this.lastTime = timestamp;
 
                 this.update(dt);
@@ -528,32 +516,62 @@
             },
 
             update(dt) {
-                // Zaman Akışı ve Doğal Çevre Dinamikleri
-                this.timeOfDay = (this.timeOfDay + dt * 0.1) % 24;
-                if(Math.random() < 0.001) {
-                    this.weather = this.weather === 'Sakin' ? 'Çisenti' : 'Sakin';
-                    document.getElementById('gameWeather').innerText = `Hava: ${this.weather}`;
+                // Zaman ve Doğa Döngüsü
+                this.timeOfDay = (this.timeOfDay + dt * 0.05) % 24;
+                if(Math.floor(this.timeOfDay * 10) % 30 === 0) this.updateUI();
+
+                // Hareket Girdileri
+                let dx = 0, dy = 0;
+                if(this.keys['w'] || this.keys['arrowup']) dy = -1;
+                if(this.keys['s'] || this.keys['arrowdown']) dy = 1;
+                if(this.keys['a'] || this.keys['arrowleft']) dx = -1;
+                if(this.keys['d'] || this.keys['arrowright']) dx = 1;
+
+                if(this.touch.active) {
+                    dx = this.touch.mx;
+                    dy = this.touch.my;
                 }
 
-                // Enerji Tüketimi
-                if(this.player.vx !== 0 || this.player.vy !== 0 || this.touch.active) {
-                    this.player.energy = Math.max(0, this.player.energy - dt * 1.5);
-                    if(this.player.energy <= 0) {
-                        this.player.hp = Math.max(0, this.player.hp - dt * 5);
-                    }
+                // Hareket Vektörünü Normalize Etme
+                if(dx !== 0 && dy !== 0) {
+                    let len = Math.sqrt(dx*dx + dy*dy);
+                    dx /= len; dy /= len;
+                }
+
+                // Yeni Konumu Hesaplama ve Sınır Kontrolü
+                let nextX = Player.x + dx * Player.speed * dt;
+                let nextY = Player.y + dy * Player.speed * dt;
+
+                // Ağaçlarla Çarpışma Testi
+                let collision = false;
+                World.trees.forEach(t => {
+                    let dist = Math.sqrt((nextX - t.x)**2 + (nextY - t.y)**2);
+                    if(dist < Player.r + t.r - 8) collision = true;
+                });
+
+                if(!collision) {
+                    if(nextX > 50 && nextX < World.width - 50) Player.x = nextX;
+                    if(nextY > 50 && nextY < World.height - 50) Player.y = nextY;
+                }
+
+                // Enerji Tüketimi Mantığı
+                if(dx !== 0 || dy !== 0) {
+                    Player.energy = Math.max(0, Player.energy - dt * 2.5);
+                    if(Player.energy <= 0) Player.hp = Math.max(0, Player.hp - dt * 6);
                 } else {
-                    this.player.energy = Math.min(100, this.player.energy + dt * 3);
+                    Player.energy = Math.min(100, Player.energy + dt * 4);
                 }
 
-                if(this.player.hp <= 0) {
+                if(Player.hp <= 0) {
                     this.running = false;
                     document.getElementById('gameOverMenu').classList.remove('hidden');
                 }
 
-                // Klavye Girdileri Eşleme
-                this.player.vx = 0;
-                this.player.vy = 0;
-                if(this.keys['w'] || this.keys['arrowup']) this.player.vy = -1;
-                if(this.keys['s'] || this.keys['arrowdown']) this.player.vy = 1;
-                if(this.keys['a'] || this.keys['arrowleft']) this.playerNormally I can help with things like this, but I don't seem to have access to that content. You can try again or ask me for something else.
-        
+                // Kamera Takibi
+                this.camera.x = Player.x - this.canvas.width / 2;
+                this.camera.y = Player.y - this.canvas.height / 2;
+            },
+
+            render() {
+                let ctx = this.ctx;
+                ctx.clearRect(0, 0, this.canvas.w
